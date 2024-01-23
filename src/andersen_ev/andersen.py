@@ -291,14 +291,32 @@ class AndersenA2:
 
     def subscribe_device_updates(self, deviceId):        
       if not self.wsclient:
-        transport = WebsocketsTransport(
-            url=ANDERSEN_GRAPHQL_WS, 
-            init_payload={'authToken': f"Bearer {self.id_token}"}
-            )
-
-        self.wsclient =  Client(
-            transport=transport,
-            fetch_schema_from_transport=False
-        )
+        self._create_wsclient()
 
       return self._subscribe('deviceStatusUpdated', variable_values={'id': deviceId} )
+    
+    def _create_wsclient(self):
+      transport = WebsocketsTransport(
+          url=ANDERSEN_GRAPHQL_WS, 
+          init_payload={'authToken': f"Bearer {self.id_token}"}
+          )
+
+      self.wsclient =  Client(
+          transport=transport,
+          fetch_schema_from_transport=False
+      )
+
+    async def _async_subscribe(self, name, variable_values = None):
+      assert self.wsclient, "Websocket client must be instantiated"
+      query = self._get_query(name)
+
+      return self.wsclient.subscribe_async(
+        query,
+        variable_values = variable_values
+      )
+
+    async def async_subscribe_device_updates(self, deviceId):
+      if not self.wsclient:
+        self._create_wsclient()
+
+      return await self._subscribe('deviceStatusUpdated', variable_values={'id': deviceId})
