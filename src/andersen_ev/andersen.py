@@ -319,4 +319,4 @@ class AndersenA2:
       if not self.wsclient:
         self._create_wsclient()
 
-      return await self._subscribe('deviceStatusUpdated', variable_values={'id': deviceId})
+      return await self._async_subscribe('deviceStatusUpdated', variable_values={'id': deviceId})
