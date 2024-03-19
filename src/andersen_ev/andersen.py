@@ -296,6 +296,9 @@ class AndersenA2:
       return self._subscribe('deviceStatusUpdated', variable_values={'id': deviceId} )
     
     def _create_wsclient(self):
+      if not self.id_token:
+        raise Exception("Must authenticate before creating websocket client")
+      
       transport = WebsocketsTransport(
           url=ANDERSEN_GRAPHQL_WS, 
           init_payload={'authToken': f"Bearer {self.id_token}"}
